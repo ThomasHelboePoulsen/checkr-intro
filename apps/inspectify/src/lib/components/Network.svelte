@@ -18,6 +18,18 @@
     if (preDot != dot) return;
     const data = vis.parseDOTNetwork(dot);
 
+    //mark accepting states
+    data.nodes.forEach((node: any) => {
+      if (node.accepting) {
+        node.shape = 'star';
+        node.borderWidth = 4;
+        node.color = {
+          ...node.color,
+          border: '#FF5555', // accepting
+        };
+      }
+    });
+
     if (network) {
       network.setData(data);
     } else {

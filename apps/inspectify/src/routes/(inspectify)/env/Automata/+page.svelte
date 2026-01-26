@@ -2,6 +2,8 @@
   import Env from '$lib/components/Env.svelte';
   import StandardInput from '$lib/components/StandardInput.svelte';
   import { Io } from '$lib/io.svelte';
+  import Network from '$lib/components/Network.svelte';
+  import InputOptions from '$lib/components/InputOptions.svelte';
 
   const io = new Io('Automata', { regex: 'skip' });
 </script>
@@ -11,6 +13,10 @@
     <StandardInput analysis="Automata" code="regex"{io} />
   {/snippet}
   {#snippet outputView({ output, referenceOutput })}
-  <p>{output.dot}</p>
+  <div class="relative">
+      <div class="absolute inset-0 grid overflow-auto">
+        <Network dot={output.dot || ''} />
+      </div>
+    </div>
   {/snippet}
 </Env>
