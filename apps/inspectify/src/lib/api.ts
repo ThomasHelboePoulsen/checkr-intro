@@ -212,6 +212,14 @@ export namespace SignAnalysis {
     | "Negative";
   export const SIGN: Sign[] = ["Positive", "Zero", "Negative"];
 }
+export namespace ce_automata {
+  export type Input = {
+    regex: string
+  };
+  export type Output = {
+    dot: string
+  };
+}
 export namespace ce_core {
   export type ValidationResult =
     | { "type": "Correct" }
@@ -220,32 +228,34 @@ export namespace ce_core {
 }
 export namespace ce_shell {
   export type Envs =
+    | { "analysis": "Automata", "io": { input: ce_automata.Input, output: ce_automata.Output, meta: void } }
     | { "analysis": "Calculator", "io": { input: Calculator.Input, output: Calculator.Output, meta: void } }
-    | { "analysis": "Parser", "io": { input: Parser.Input, output: Parser.Output, meta: void } }
     | { "analysis": "Compiler", "io": { input: Compiler.Input, output: Compiler.Output, meta: void } }
     | { "analysis": "Interpreter", "io": { input: Interpreter.Input, output: Interpreter.Output, meta: GCL.TargetDef[] } }
+    | { "analysis": "Parser", "io": { input: Parser.Input, output: Parser.Output, meta: void } }
     | { "analysis": "Security", "io": { input: SecurityAnalysis.Input, output: SecurityAnalysis.Output, meta: SecurityAnalysis.Meta } }
     | { "analysis": "Sign", "io": { input: SignAnalysis.Input, output: SignAnalysis.Output, meta: GCL.TargetDef[] } };
   export type Analysis =
+    | "Automata"
     | "Calculator"
-    | "Parser"
     | "Compiler"
     | "Interpreter"
+    | "Parser"
     | "Security"
     | "Sign";
-  export const ANALYSIS: Analysis[] = ["Calculator", "Parser", "Compiler", "Interpreter", "Security", "Sign"];
+  export const ANALYSIS: Analysis[] = ["Automata", "Calculator", "Compiler", "Interpreter", "Parser", "Security", "Sign"];
   export namespace io {
     export type Input = {
       analysis: ce_shell.Analysis,
       json: any,
       hash: ce_shell.io.Hash
     };
+    export type Hash = {
+      bytes: number[]
+    };
     export type Meta = {
       analysis: ce_shell.Analysis,
       json: any
-    };
-    export type Hash = {
-      bytes: number[]
     };
     export type Output = {
       analysis: ce_shell.Analysis,
@@ -336,10 +346,6 @@ export namespace inspectify {
     }
   }
   export namespace endpoints {
-    export type GenerateParams = {
-      analysis: ce_shell.Analysis,
-      seed: (number | null)
-    };
     export type Event =
       | { "type": "Reset" }
       | { "type": "CompilationStatus", "value": { status: inspectify.endpoints.CompilationStatus } }
@@ -347,6 +353,10 @@ export namespace inspectify {
       | { "type": "JobsChanged", "value": { jobs: driver.job.JobId[] } }
       | { "type": "GroupsConfig", "value": { config: inspectify.checko.config.GroupsConfig } }
       | { "type": "ProgramsConfig", "value": { programs: inspectify.endpoints.Program[] } };
+    export type GenerateParams = {
+      analysis: ce_shell.Analysis,
+      seed: (number | null)
+    };
     export type ReferenceExecution = {
       meta: ce_shell.io.Meta,
       output: (ce_shell.io.Output | null),

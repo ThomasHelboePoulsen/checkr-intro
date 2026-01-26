@@ -14,10 +14,11 @@ pub trait EnvExt: Env {
 }
 
 define_shell!(
+    ce_automata::AutomataEnv[Automata, "Automata"],
     ce_calculator::CalcEnv[Calculator, "Calculator"],
-    ce_parser::ParserEnv[Parser, "Parser"],
     ce_compiler::CompilerEnv[Compiler, "Compiler"],
     ce_interpreter::InterpreterEnv[Interpreter, "Interpreter"],
+    ce_parser::ParserEnv[Parser, "Parser"],
     ce_security::SecurityEnv[Security, "Security"],
     ce_sign::SignEnv[Sign, "Sign Analysis"],
 );

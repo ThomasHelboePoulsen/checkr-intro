@@ -315,6 +315,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ce-automata"
+version = "0.2.14"
+dependencies = [
+ "ce-core",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "tapi",
+ "tracing",
+]
+
+[[package]]
 name = "ce-calculator"
 version = "0.2.14"
 dependencies = [
@@ -405,6 +417,7 @@ dependencies = [
 name = "ce-shell"
 version = "0.2.14"
 dependencies = [
+ "ce-automata",
  "ce-calculator",
  "ce-compiler",
  "ce-core",
