@@ -1,5 +1,6 @@
 use ce_core::{Env, Generate, ValidationResult, define_env, rand};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::fmt;
 
 define_env!(AutomataEnv);
@@ -23,26 +24,33 @@ struct Edge {
 
 impl fmt::Display for Edge {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}->{} [label=\"{}\"]"
-        ,self.from,self.to,self.label)
+        write!(
+            f,
+            "\"{}\"->\"{}\" [label=\"{}\"]",
+            self.from, self.to, self.label
+        )
     }
 }
 
-fn automata_edges_from_word(word : &str) -> Vec<Edge> {
+fn automata_edges_from_word(word: &str, id: usize) -> Vec<Edge> {
     let mut edges: Vec<Edge> = Vec::new();
     for (i, c) in word.chars().enumerate() {
         let base = Edge {
-            from: i.to_string(),
-            to: (i+1).to_string(),
-            label: String::new()
+            from: (if i > 0 {
+                format!("{}-{}", id, i)
+            } else {
+                i.to_string()
+            }),
+            to: format!("{}-{}", id, (i + 1)),
+            label: String::new(),
         };
         let upper = c.to_string().to_uppercase();
         let lower = c.to_string().to_lowercase();
         if lower == upper {
             edges.push(Edge {
-            label: upper,
-            ..base.clone()
-            }); 
+                label: upper,
+                ..base.clone()
+            });
             continue;
         }
         edges.push(Edge {
@@ -58,22 +66,40 @@ fn automata_edges_from_word(word : &str) -> Vec<Edge> {
 }
 
 fn edges_to_dot(edges: &[Edge]) -> String {
-    let mut dot = String::from(" digraph Automaton {
-    rankdir=LR;");
+    let mut dot = String::from(
+        " digraph Automaton {
+    rankdir=LR;",
+    );
 
     for edge in edges {
         dot.push_str(&edge.to_string());
     }
-    
-    if let Some(last) = edges.last() {
-        let line = format!("{} [accepting=true];", last.to);
+
+    let mut from_nodes: HashSet<String> = HashSet::new();
+    let mut to_nodes: HashSet<String> = HashSet::new();
+
+    for edge in edges {
+        to_nodes.insert(edge.to.clone());
+        from_nodes.insert(edge.from.clone());
+    }
+    for accepting_node in to_nodes.difference(&from_nodes).into_iter() {
+        let line = format!("\"{}\" [accepting=true];", accepting_node);
         dot.push_str(&line);
     }
 
-    
     dot.push_str(&String::from("}"));
 
     dot
+}
+
+fn split_and_collect(regex: &str) -> Vec<Edge> {
+    let mut edges: Vec<Edge> = Vec::new();
+    let words: Vec<&str> = regex.split("|").collect();
+
+    for (i, word) in words.iter().enumerate() {
+        edges.extend(automata_edges_from_word(word, i));
+    }
+    edges
 }
 
 impl Env for AutomataEnv {
@@ -85,9 +111,7 @@ impl Env for AutomataEnv {
 
     fn run(_input: &Self::Input) -> ce_core::Result<Self::Output> {
         Ok(Output {
-            dot: edges_to_dot(
-                &automata_edges_from_word(&_input.regex)
-            ),
+            dot: edges_to_dot(&split_and_collect(&_input.regex)),
         })
     }
 
@@ -103,4 +127,3 @@ impl Generate for Input {
         Self::default()
     }
 }
-
