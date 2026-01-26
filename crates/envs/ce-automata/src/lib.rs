@@ -1,3 +1,4 @@
+use ce_core::rand::seq::IndexedRandom;
 use ce_core::{Env, Generate, ValidationResult, define_env, rand};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
@@ -124,6 +125,18 @@ impl Generate for Input {
     type Context = ();
 
     fn gn<R: rand::Rng>(_cx: &mut Self::Context, _rng: &mut R) -> Self {
-        Self::default()
+        let alphabet = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -!\"";
+        let mut regex = String::new();
+        let words: usize = _rng.random_range(1..11);
+        for i in 0..words {
+            let word_len = _rng.random_range(1..20);
+            for _ in 0..word_len {
+                regex.push(alphabet.choose(_rng).unwrap().clone() as char);
+            }
+            if i != words-1 {
+                regex.push('|');
+            }
+        }
+        Input { regex }
     }
 }
