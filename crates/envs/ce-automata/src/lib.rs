@@ -125,7 +125,7 @@ impl Generate for Input {
     type Context = ();
 
     fn gn<R: rand::Rng>(_cx: &mut Self::Context, _rng: &mut R) -> Self {
-        let alphabet = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -!\"";
+        let alphabet = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         let mut regex = String::new();
         let words: usize = _rng.random_range(1..11);
         for i in 0..words {
