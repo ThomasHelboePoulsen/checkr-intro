@@ -7,7 +7,7 @@ use ce_core::{Env, Generate, ValidationResult, define_env, rand};
 use petgraph::visit::EdgeRef;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashSet,HashMap, VecDeque};
-use std::fmt;
+use std::{fmt, string};
 
 define_env!(AutomataEnv);
 
@@ -17,9 +17,11 @@ pub struct Input {
 }
 
 #[derive(tapi::Tapi, Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Output {
+pub struct Output { 
     pub dot: String,
 }
+const ALPHABET : &[u8; 62] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+
 
 #[derive(Clone)]
 struct Edge {
@@ -132,9 +134,13 @@ impl Env for AutomataEnv {
     type Meta = ();
 
     fn run(_input: &Self::Input) -> ce_core::Result<Self::Output> {
-        Ok(Output {
-            dot: edges_to_dot(&split_and_collect(&_input.regex)),
-        })
+        let result = match _input.regex.as_bytes().iter().any(|b: &u8| !ALPHABET.contains(b) && *b != b'|') {
+            true => Ok( Output { dot: "Only alhpanumerical chars and | is allowed".to_string() }), //TODO: make into error
+            false => Ok(Output {
+                dot: edges_to_dot(&split_and_collect(&_input.regex)),
+            }) 
+        };
+        result
     }
 
 
@@ -182,13 +188,12 @@ impl Generate for Input {
     type Context = ();
 
     fn gn<R: rand::Rng>(_cx: &mut Self::Context, _rng: &mut R) -> Self {
-        let alphabet = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         let mut regex = String::new();
         let words: usize = _rng.random_range(1..11);
         for i in 0..words {
             let word_len = _rng.random_range(1..20);
             for _ in 0..word_len {
-                regex.push(alphabet.choose(_rng).unwrap().clone() as char);
+                regex.push(ALPHABET.choose(_rng).unwrap().clone() as char);
             }
             if i != words-1 {
                 regex.push('|');
