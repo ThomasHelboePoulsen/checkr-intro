@@ -6,7 +6,7 @@ use ce_core::rand::seq::IndexedRandom;
 use ce_core::{Env, Generate, ValidationResult, define_env, rand};
 use petgraph::visit::EdgeRef;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashSet,HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::{fmt, string};
 
 define_env!(AutomataEnv);
@@ -17,11 +17,10 @@ pub struct Input {
 }
 
 #[derive(tapi::Tapi, Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-pub struct Output { 
+pub struct Output {
     pub dot: String,
 }
-const ALPHABET : &[u8; 62] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-
+const ALPHABET: &[u8; 62] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
 #[derive(Clone)]
 struct Edge {
@@ -30,9 +29,9 @@ struct Edge {
     label: String,
 }
 struct Node {
-    name : String,
-    ingoing : Vec<usize>,
-    outgoing: Vec<usize>
+    name: String,
+    ingoing: Vec<usize>,
+    outgoing: Vec<usize>,
 }
 
 impl Node {
@@ -125,7 +124,6 @@ fn split_and_collect(regex: &str) -> Vec<Edge> {
     edges
 }
 
-
 impl Env for AutomataEnv {
     type Input = Input;
 
@@ -134,16 +132,21 @@ impl Env for AutomataEnv {
     type Meta = ();
 
     fn run(_input: &Self::Input) -> ce_core::Result<Self::Output> {
-        let result = match _input.regex.as_bytes().iter().any(|b: &u8| !ALPHABET.contains(b) && *b != b'|') {
-            true => Ok( Output { dot: "Only alhpanumerical chars and | is allowed".to_string() }), //TODO: make into error
+        let result = match _input
+            .regex
+            .as_bytes()
+            .iter()
+            .any(|b: &u8| !ALPHABET.contains(b) && *b != b'|')
+        {
+            true => Ok(Output {
+                dot: "Only alhpanumerical chars and | is allowed".to_string(),
+            }), //TODO: make into error
             false => Ok(Output {
                 dot: edges_to_dot(&split_and_collect(&_input.regex)),
-            }) 
+            }),
         };
         result
     }
-
-
 
     fn validate(_input: &Self::Input, _output: &Self::Output) -> ce_core::Result<ValidationResult> {
         let t_g = match dot::dot_to_petgraph(&_output.dot) {
@@ -154,8 +157,17 @@ impl Env for AutomataEnv {
                 });
             }
         };
+
         let actual_edges: Vec<Edge> = t_g.edges();
         let actual_nodes = derive_nodes(&actual_edges);
+
+        let reference_edges = split_and_collect(&_input.regex);
+        let reference_nodes = derive_nodes(&reference_edges);
+
+        if actual_nodes.is_empty() && reference_nodes.is_empty() {
+            return Ok(ValidationResult::Correct);
+        }
+
         let actual_start_idx = match actual_nodes.iter().position(|n| n.is_root()) {
             Some(idx) => idx,
             None => {
@@ -164,9 +176,7 @@ impl Env for AutomataEnv {
                 });
             }
         };
-        
-        let reference_edges = split_and_collect(&_input.regex);
-        let reference_nodes = derive_nodes(&reference_edges);
+
         let reference_start_idx = match actual_nodes.iter().position(|n| n.is_root()) {
             Some(idx) => idx,
             None => {
@@ -176,10 +186,19 @@ impl Env for AutomataEnv {
             }
         };
 
-        if equivalent(&actual_nodes,&actual_edges,&reference_nodes,&reference_edges,actual_start_idx,reference_start_idx) {
+        if equivalent(
+            &actual_nodes,
+            &actual_edges,
+            &reference_nodes,
+            &reference_edges,
+            actual_start_idx,
+            reference_start_idx,
+        ) {
             Ok(ValidationResult::Correct)
         } else {
-            Ok(ValidationResult::Mismatch { reason: "Not equivalent".to_string() })
+            Ok(ValidationResult::Mismatch {
+                reason: "Not equivalent".to_string(),
+            })
         }
     }
 }
@@ -195,7 +214,7 @@ impl Generate for Input {
             for _ in 0..word_len {
                 regex.push(ALPHABET.choose(_rng).unwrap().clone() as char);
             }
-            if i != words-1 {
+            if i != words - 1 {
                 regex.push('|');
             }
         }
@@ -213,9 +232,8 @@ fn equivalent(
 ) -> bool {
     let live1 = compute_live(nodes1, edges1);
     let live2 = compute_live(nodes2, edges2);
-    
-    let alphabet: HashSet<String> =
-        alphabet(edges1).union(&alphabet(edges2)).cloned().collect();
+
+    let alphabet: HashSet<String> = alphabet(edges1).union(&alphabet(edges2)).cloned().collect();
 
     let mut visited = HashSet::new();
     let mut queue = VecDeque::new();
@@ -224,8 +242,7 @@ fn equivalent(
     visited.insert((start1, start2));
 
     while let Some((s1, s2)) = queue.pop_front() {
-        if (nodes1[s1].is_accepting() && live1[s1]) 
-            != (nodes2[s2].is_accepting() && live2[s2]) {
+        if (nodes1[s1].is_accepting() && live1[s1]) != (nodes2[s2].is_accepting() && live2[s2]) {
             return false;
         }
 
@@ -282,13 +299,7 @@ fn derive_nodes(edges: &[Edge]) -> Vec<Node> {
     nodes
 }
 
-
-fn transition(
-    nodes: &[Node],
-    edges: &[Edge],
-    node_idx: usize,
-    label: &str,
-) -> Option<usize> {
+fn transition(nodes: &[Node], edges: &[Edge], node_idx: usize, label: &str) -> Option<usize> {
     for &e_idx in &nodes[node_idx].outgoing {
         let e = &edges[e_idx];
         if e.label == label {
@@ -301,9 +312,6 @@ fn transition(
 fn alphabet(edges: &[Edge]) -> HashSet<String> {
     edges.iter().map(|e| e.label.clone()).collect()
 }
-
-
-
 
 impl dot::ParsedGraph {
     pub fn edges(&self) -> Vec<Edge> {
