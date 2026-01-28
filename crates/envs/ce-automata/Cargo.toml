@@ -8,7 +8,10 @@ license.workspace = true
 
 [dependencies]
 ce-core.workspace = true
+gcl.workspace = true
+graphviz-rust = "0.9.6"
 itertools.workspace = true
+petgraph.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tapi.workspace = true

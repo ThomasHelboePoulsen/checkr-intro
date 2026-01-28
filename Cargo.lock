@@ -319,7 +319,10 @@ name = "ce-automata"
 version = "0.2.14"
 dependencies = [
  "ce-core",
+ "gcl",
+ "graphviz-rust",
  "itertools 0.14.0",
+ "petgraph",
  "serde",
  "serde_json",
  "tapi",
@@ -1137,9 +1140,9 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 
 [[package]]
 name = "graphviz-rust"
-version = "0.9.5"
+version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "844f6cc740402218a8b4c450d4569f368c754d01e41a1917751c4fa3750a942e"
+checksum = "db134cb611668917cabf340af9a39518426f9a10827b4cedcb4cdcf84443f6d0"
 dependencies = [
  "dot-generator",
  "dot-structures",
@@ -1147,7 +1150,7 @@ dependencies = [
  "into-attr-derive",
  "pest",
  "pest_derive",
- "rand 0.8.5",
+ "rand 0.9.1",
  "tempfile",
 ]
 
