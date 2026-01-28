@@ -36,6 +36,7 @@ ce-automata = { path = "./crates/envs/ce-automata" }
 ce-calculator = { path = "./crates/envs/ce-calculator" }
 ce-compiler = { path = "./crates/envs/ce-compiler" }
 ce-core = { path = "./crates/ce-core" }
+ce-hello-world = { path = "./crates/envs/ce-hello-world" }
 ce-interpreter = { path = "./crates/envs/ce-interpreter" }
 ce-parser = { path = "./crates/envs/ce-parser" }
 ce-security = { path = "./crates/envs/ce-security" }

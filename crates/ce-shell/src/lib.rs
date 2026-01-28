@@ -17,6 +17,7 @@ define_shell!(
     ce_automata::AutomataEnv[Automata, "Automata"],
     ce_calculator::CalcEnv[Calculator, "Calculator"],
     ce_compiler::CompilerEnv[Compiler, "Compiler"],
+    ce_hello_world::HelloWorldEnv[HelloWorld, "Hello World"],
     ce_interpreter::InterpreterEnv[Interpreter, "Interpreter"],
     ce_parser::ParserEnv[Parser, "Parser"],
     ce_security::SecurityEnv[Security, "Security"],

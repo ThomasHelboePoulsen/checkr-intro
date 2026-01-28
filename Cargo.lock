@@ -377,6 +377,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ce-hello-world"
+version = "0.2.14"
+dependencies = [
+ "ce-core",
+ "itertools 0.14.0",
+ "serde",
+ "serde_json",
+ "tapi",
+ "tracing",
+]
+
+[[package]]
 name = "ce-interpreter"
 version = "0.2.14"
 dependencies = [
@@ -424,6 +436,7 @@ dependencies = [
  "ce-calculator",
  "ce-compiler",
  "ce-core",
+ "ce-hello-world",
  "ce-interpreter",
  "ce-parser",
  "ce-security",
